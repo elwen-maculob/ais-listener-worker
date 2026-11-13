@@ -3,7 +3,7 @@ name: Collect AIS positions 24/7
 on:
   schedule:
     # Runs every 30 minutes, 24 hours a day, 7 days a week (UTC time)
-    - cron: "7,37 * * * *"
+    - cron: "7,27,47 * * * *"  # Runs at 7, 27, and 47 minutes past the hour
   
   workflow_dispatch: # Keeps the manual run button enabled
 
@@ -38,5 +38,5 @@ jobs:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           DEBUG: "False"
         run: |
-          # Runs for up to 12 minutes (720 seconds) per trigger safely within the 30-min gap
-          python manage.py collect_ais --max-seconds 720
+          # Runs for up to 7 minutes (420 seconds) per trigger safely within the 20-min gap
+          python manage.py collect_ais --max-seconds 420
