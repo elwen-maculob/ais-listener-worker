@@ -37,10 +37,10 @@ MAX_MMSI_FILTER = 50  # AISStream accepts at most 50 MMSIs per subscription
 # Fill in the coordinates (decimal degrees) for the ports you serve.
 # Entries left as None are skipped, so you can still set a destination by hand.
 CLIENT_PORTS = {
-    "PSC": ("PSC PORT VILLANUEVA, PHILS", 8.5778, 124.7594),
-    "PKI": (None, None, None),
-    "PMSC_BOHOL": (None, None, None),
-    "PMSC_ALCOY": (None, None, None),
+    "PSC": ("PSC PORT VILLANUEVA", 8.5782, 124.7581),
+    "PKI": ("PKI PORT JASAAN", 8.6363, 124.7603),
+    "PMSC_BOHOL": ("PMSC PORT BOHOL", 9.6169, 124.3094),
+    "PMSC_ALCOY": ("PMSC PORT ALCOY", 9.7350, 123.5144),
 }
 
 NAV_STATUS = {
