@@ -3,7 +3,7 @@ name: Collect AIS positions 24/7
 on:
   schedule:
     # Runs every 30 minutes, 24 hours a day, 7 days a week (UTC time)
-    - cron: "0,30 * * * *"
+    - cron: "7,37 * * * *"
   
   workflow_dispatch: # Keeps the manual run button enabled
 
