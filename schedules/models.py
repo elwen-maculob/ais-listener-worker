@@ -22,7 +22,8 @@ class ActiveSchedule(models.Model):
     remarks = models.TextField(blank=True, null=True)
     
     created_at = models.DateTimeField(auto_now_add=True)
-
+    last_seen = models.DateTimeField(null=True, blank=True)
+    
     class Meta:
         ordering = ['eta', 'id']  # Now sorts chronologically by date!
 

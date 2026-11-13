@@ -260,6 +260,17 @@ class Command(BaseCommand):
             if mmsi in positions:
                 # last_updated means "time of the last position": only set it for position reports
                 fields["last_updated"] = now
+                
+                # Also update ActiveSchedule last_seen and coordinates if present
+                pos_data = positions[mmsi]
+                ActiveSchedule.objects.filter(mmsi=mmsi).update(
+                    latitude=pos_data.get("latitude"),
+                    longitude=pos_data.get("longitude"),
+                    speed=pos_data.get("speed_over_ground"),
+                    course=pos_data.get("course_over_ground"),
+                    last_seen=now
+                )
+
             if fields:
                 Vessel.objects.filter(mmsi=mmsi).update(**fields)
                 saved += 1
