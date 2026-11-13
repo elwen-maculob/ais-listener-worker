@@ -1,9 +1,3 @@
-# Save as: TrackerApp/models.py  (replaces the current file)
-#
-# Only one thing changed compared with your current model:
-# `imo` is now optional and no longer unique, because the schedule board lets
-# you leave the IMO empty and the collector creates one Vessel row per MMSI.
-# After saving, run:  python manage.py makemigrations TrackerApp
 from django.db import models
 
 
