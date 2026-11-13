@@ -1,0 +1,42 @@
+name: Collect AIS positions 24/7
+
+on:
+  schedule:
+    # Runs every 30 minutes, 24 hours a day, 7 days a week (UTC time)
+    - cron: "0,30 * * * *"
+  
+  workflow_dispatch: # Keeps the manual run button enabled
+
+permissions:
+  contents: read
+
+concurrency:
+  group: collect-ais
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Collect AIS data
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          AISSTREAM_API_KEY: ${{ secrets.AISSTREAM_API_KEY }}
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          DEBUG: "False"
+        run: |
+          # Runs for up to 12 minutes (720 seconds) per trigger safely within the 30-min gap
+          python manage.py collect_ais --max-seconds 720

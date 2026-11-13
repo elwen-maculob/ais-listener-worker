@@ -1,0 +1,5 @@
+websockets,
+psycopg2-binary,
+requests,
+Django,
+python-dotenv
