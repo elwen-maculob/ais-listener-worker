@@ -6,7 +6,8 @@ on:
     - cron: "7,27,47 * * * *"  # Runs at 7, 27, and 47 minutes past the hour
   
   workflow_dispatch: # Keeps the manual run button enabled
-
+  repository_dispatch:
+    types: [trigger-ais-sync]  # Allows Django portal to trigger it instantly
 permissions:
   contents: read
 
