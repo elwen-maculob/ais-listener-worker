@@ -1,10 +1,9 @@
+# Save as: TrackerApp/management/commands/collect_ais.py
 """
 Short-burst AIS collector for the P-NKKK portal.
 
 Listens to AISStream for a limited time, reconnects if the socket drops,
 saves the latest data for the vessels on the schedule board, then exits.
-
-Save as: TrackerApp/management/commands/collect_ais.py
 """
 import asyncio
 import json
@@ -94,6 +93,20 @@ def clean_static(body):
     if body.get("MaximumStaticDraught"):
         fields["draught"] = body["MaximumStaticDraught"]
 
+    # Parse Master's ETA if provided by AISStream (Type 5 packet)
+    eta = body.get("Eta")
+    if isinstance(eta, dict):
+        month = eta.get("Month", 0)
+        day = eta.get("Day", 0)
+        hour = eta.get("Hour", 0)
+        minute = eta.get("Minute", 0)
+        
+        if 1 <= month <= 12 and 1 <= day <= 31 and 0 <= hour <= 24 and 0 <= minute <= 59:
+            month_names = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+            hour_str = f"{hour:02d}" if hour < 24 else "23"
+            min_str = f"{minute:02d}" if minute < 60 else "59"
+            fields["master_eta"] = f"{month_names[month]} {day} {hour_str}:{min_str} UTC"
+
     return fields
 
 
@@ -163,16 +176,12 @@ async def collect_with_retries(api_key, mmsis, max_seconds, want_static):
                             timeout=max(0.05, min(RECV_TIMEOUT, deadline - time.monotonic())),
                         )
                     except asyncio.TimeoutError:
-                        # Silence is normal for quiet vessels. Keep the SAME connection open:
-                        # closing and reopening it here would only lose messages.
                         continue
 
-                    failures = 0  # the connection works, so reset the failure counter
+                    failures = 0
                     message = json.loads(raw)
 
                     if "error" in message:
-                        # For example an invalid API key: stop with a visible failure
-                        # instead of reconnecting until the time is up.
                         raise CommandError(f"AISStream returned an error: {message['error']}")
 
                     msg_type = message.get("MessageType")
@@ -191,7 +200,6 @@ async def collect_with_retries(api_key, mmsis, max_seconds, want_static):
                         return positions, statics
 
         except (OSError, WebSocketException):
-            # The connection dropped or could not be opened (this includes ConnectionClosed).
             failures += 1
             if failures >= MAX_RETRIES:
                 raise CommandError(f"Could not keep a connection to AISStream ({failures} attempts failed).")
